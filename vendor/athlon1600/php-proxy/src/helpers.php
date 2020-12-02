@@ -200,12 +200,14 @@ function rel2abs($rel, $base)
 	/* parse base URL  and convert to local variables:
 	$scheme, $host,  $path */
 	extract(parse_url($base));
+	$portstr = "";
+	if(isset($port) && is_int($port)) $portstr = ":$port";
 	/* remove  non-directory element from path */
 	@$path = preg_replace('#/[^/]*$#', '', $path);
 	/* destroy path if  relative url points to root */
 	if ($rel[0] == '/') $path = '';
 	/* dirty absolute  URL */
-	$abs = "$host$path/$rel";
+	$abs = "$host$portstr$path/$rel";
 	/* replace '//' or  '/./' or '/foo/../' with '/' */
 	$re = array(
 		'#(/\.?/)#',
