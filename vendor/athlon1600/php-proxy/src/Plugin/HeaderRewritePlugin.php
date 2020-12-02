@@ -43,7 +43,7 @@ class HeaderRewritePlugin extends AbstractPlugin {
 		$text = $response->getStatusText();
 
 		if($code >= 400 && $code <= 600){
-			throw new \Exception("Error accessing resource: {$code} - {$text}");
+			throw new \Exception("{$code} {$text}");
 		}
 		
 		// we need content-encoding (in case server refuses to serve it in plain text)

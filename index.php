@@ -58,7 +58,7 @@ if (isset($_POST['url'])) {
         switch(Config::get('home_mode'))
         {
             case 1: 
-                echo render_template("./templates/404.php");
+                echo render_template("./templates/404.php", array('version' => Proxy::VERSION));
             break;
 
             default:
@@ -142,11 +142,22 @@ try {
 
     } else {
 
-        echo render_template("./templates/main.php", array(
-            'url' => $url,
-            'error_msg' => $ex->getMessage(),
-            'version' => Proxy::VERSION
-        ));
+        switch(Config::get('home_mode'))
+        {
+            case 1: 
+                echo render_template("./templates/404.php", array(
+                    'url' => $url,
+                    'error_msg' => explode(") ", $ex->getMessage())[0],
+                    'version' => Proxy::VERSION
+                ));
+            break;
 
+            default:
+                echo render_template("./templates/main.php", array(
+                    'url' => $url,
+                    'error_msg' => $ex->getMessage(),
+                    'version' => Proxy::VERSION
+                ));
+        }
     }
 }
