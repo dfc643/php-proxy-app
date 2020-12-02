@@ -10,15 +10,38 @@ use Proxy\Html;
 class ProxifyPlugin extends AbstractPlugin {
 
 	private $base_url = '';
+
+	private function http_build_url($url_arr)
+	{
+		if (!empty($url_arr['scheme'])) {
+			$new_url = $url_arr['scheme'] . "://" . $url_arr['host'];
+		} else {
+			$new_url = $url_arr['host'];
+		}
+		if (!empty($url_arr['port']))
+			$new_url = $new_url . ":" . $url_arr['port'];
+		$new_url = $new_url . $url_arr['path'];
+		if (!empty($url_arr['query']))
+			$new_url = $new_url . "?" . $url_arr['query'];
+		if (!empty($url_arr['fragment']))
+			$new_url = $new_url . "#" . $url_arr['fragment'];
+		return $new_url;
+	}
 	
 	private function css_url($matches){
 		
 		$url = trim($matches[1]);
+		$baseurl = $this->base_url;
 		if(starts_with($url, 'data:')){
 			return $matches[0];
 		}
-		
-		return str_replace($matches[1], proxify_url($matches[1], $this->base_url), $matches[0]);
+		// FIXED: from js, redirect to root path
+		if (preg_match("/\.js(\?.*)?$/", $this->base_url)) {
+			$baseurl = parse_url($baseurl);
+			$baseurl['path'] = "/";
+			$baseurl = $this->http_build_url($baseurl);
+		}
+		return str_replace($matches[1], proxify_url($matches[1], $baseurl), $matches[0]);
 	}
 	
 	// this.params.logoImg&&(e="background-image: url("+this.params.logoImg+")")
@@ -169,8 +192,9 @@ class ProxifyPlugin extends AbstractPlugin {
 		if (in_array($content_type, $js_proxify)) {
 			$str = preg_replace_callback('@(?:src|href|action)\s*=\s*(\"|\')\/(.*?)\1@is', array($this, 'html_attr'), $str);
 			$str = preg_replace_callback('@(?:src|href|action)\s*=\s*(\\\"|\\\')(.*?)\1@is', array($this, 'html_attr'), $str);
-			$str = preg_replace("/\/http/", "http", $str);
-			$str = $this->proxify_css($str);
+			$str = preg_replace_callback('@[^a-z]{1}url\s*\((?:\'|"|)\/(.*?)(?:\'|"|)\)@im', array($this, 'css_url'), $str);
+			$str = preg_replace("/(\"|\')\/http/", '${0}http', $str);
+			$str = preg_replace("/url\(\/http/", 'url(http', $str);
 			return $response->setContent($str);
 		} 
 		
