@@ -146,6 +146,13 @@ class ProxifyPlugin extends AbstractPlugin {
 		$content_type = $response->headers->get('content-type');
 		
 		$str = $response->getContent();
+
+		//__covernt_non-utf-8_to_utf-8__
+		$encoding = array('UTF-8', 'ASCII', 'GB2312', 'GBK');
+		$str_enc = mb_detect_encoding($str, $encoding);
+		if (strtoupper($str_enc) !== "UTF-8") {
+			$str = mb_convert_encoding($str, "UTF-8", $str_enc);
+		}
 		
 		// DO NOT do any proxification on .js files and text/plain content type
 		$no_proxify = array('text/javascript', 'application/javascript', 'application/x-javascript', 'text/plain');
