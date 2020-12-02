@@ -157,9 +157,9 @@ class ProxifyPlugin extends AbstractPlugin {
 				$str = mb_convert_encoding($str, "UTF-8", $str_enc);
 			}
 		}
-		
+
 		// DO NOT do any proxification on .js files and text/plain content type
-		$no_proxify = array('text/javascript', 'application/javascript', 'application/x-javascript', 'text/plain');
+		$no_proxify = array('text/plain'); //'text/javascript', 'application/javascript', 'application/x-javascript', 
 		if(in_array($content_type, $no_proxify)){
 			return;
 		}
@@ -181,7 +181,8 @@ class ProxifyPlugin extends AbstractPlugin {
 		$str = $this->proxify_css($str);
 		
 		// src= and href=
-		$str = preg_replace_callback('@(?:src|href)\s*=\s*(["|\'])(.*?)\1@is', array($this, 'html_attr'), $str);
+		//$str = preg_replace_callback('@(?:src|href|action)\s*=\s*(["|\'])(.*?)\1@is', array($this, 'html_attr'), $str);
+		$str = preg_replace_callback('@(?:src|href|action)\s*=\s*(\"|\'|\\\"|\\\')(.*?)\1@is', array($this, 'html_attr'), $str);
 		
 		// img srcset
 		$str = preg_replace_callback('/srcset=\"(.*?)\"/i', function($matches){
