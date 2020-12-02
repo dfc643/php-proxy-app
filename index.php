@@ -55,7 +55,15 @@ if (isset($_POST['url'])) {
         header("Location: " . Config::get('index_redirect'));
 
     } else {
-        echo render_template("./templates/main.php", array('version' => Proxy::VERSION));
+        switch(Config::get('home_mode'))
+        {
+            case 1: 
+                echo render_template("./templates/404.php");
+            break;
+
+            default:
+                echo render_template("./templates/main.php", array('version' => Proxy::VERSION));
+        }
     }
 
     exit;
