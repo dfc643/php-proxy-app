@@ -163,6 +163,16 @@ class ProxifyPlugin extends AbstractPlugin {
 		if(in_array($content_type, $no_proxify)){
 			return;
 		}
+
+		// js proxify (may have some bugs)
+		$js_proxify = array('text/javascript', 'application/javascript', 'application/x-javascript'); //, 
+		if (in_array($content_type, $js_proxify)) {
+			$str = preg_replace_callback('@(?:src|href|action)\s*=\s*(\"|\')\/(.*?)\1@is', array($this, 'html_attr'), $str);
+			$str = preg_replace_callback('@(?:src|href|action)\s*=\s*(\\\"|\\\')(.*?)\1@is', array($this, 'html_attr'), $str);
+			$str = preg_replace("/\/http/", "http", $str);
+			$str = $this->proxify_css($str);
+			return $response->setContent($str);
+		} 
 		
 		// remove JS from urls
 		$js_remove = (array)Config::get('js_remove');
@@ -179,10 +189,9 @@ class ProxifyPlugin extends AbstractPlugin {
 		
 		$str = $this->proxify_head($str);
 		$str = $this->proxify_css($str);
-		
+
 		// src= and href=
-		//$str = preg_replace_callback('@(?:src|href|action)\s*=\s*(["|\'])(.*?)\1@is', array($this, 'html_attr'), $str);
-		$str = preg_replace_callback('@(?:src|href|action)\s*=\s*(\"|\'|\\\"|\\\')(.*?)\1@is', array($this, 'html_attr'), $str);
+		$str = preg_replace_callback('@(?:src|href|action)\s*=\s*(["|\'])(.*?)\1@is', array($this, 'html_attr'), $str);
 		
 		// img srcset
 		$str = preg_replace_callback('/srcset=\"(.*?)\"/i', function($matches){
