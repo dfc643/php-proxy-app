@@ -78,6 +78,17 @@ foreach ( $qs_array as $k => $v ) {
     $url .= "&$k=$v"; 
 }
 
+// FIXED: urlencode when has Chinese characters.
+$pregstr = "/[\x{4e00}-\x{9fa5}]+/u"; //UTF-8中文正则
+if (preg_match_all($pregstr, $url, $matchArray)) { //匹配中文，返回数组
+    foreach ($matchArray[0] as $key => $val) {
+        $url = str_replace($val, urlencode($val), $url); //将转译替换中文
+    }
+    if (strpos($url, ' ')) { //若存在空格
+        $url = str_replace(' ', '%20', $url);
+    }
+}
+
 $proxy = new Proxy();
 
 // load plugins
