@@ -92,6 +92,11 @@ class Response {
 		}
 		
 		header(sprintf('HTTP/1.1 %s %s', $this->status, $this->getStatusText()), true, $this->status);
+
+		// Allow CORS
+		header('Access-Control-Allow-Origin:*');  
+		header('Access-Control-Allow-Methods:*');  
+		header('Access-Control-Allow-Headers:x-requested-with,content-type'); 
 		
 		foreach($this->headers->all() as $name => $value){
 		
