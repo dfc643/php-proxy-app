@@ -89,6 +89,16 @@ if (preg_match_all($pregstr, $url, $matchArray)) { //匹配中文，返回数组
     }
 }
 
+// IGNORE_LIST
+$iglst_host = parse_url($url)['host'];
+foreach(file("config/ignore.list") as $line) {
+    if(strtolower($iglst_host) === trim(strtolower($line))) {
+        header("HTTP/1.1 302 Found");
+        header("Location: " . $url);
+        exit;
+    }
+}
+
 $proxy = new Proxy();
 
 // load plugins
