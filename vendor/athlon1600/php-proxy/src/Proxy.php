@@ -113,7 +113,7 @@ class Proxy {
 	}
 	
 	public function forward(Request $request, $url){
-	
+
 		// change request URL
 		$request->setUrl($url);
 		

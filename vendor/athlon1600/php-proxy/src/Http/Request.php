@@ -123,6 +123,9 @@ class Request {
 	}
 	
 	public function setUrl($url){
+		$url = explode("?q=", $url);
+		$url = isset($url[1]) ? $url[1] : $url[0];
+
 		// remove hashtag - preg_replace so we don't have to check for its existence first - is it possible preserving hashtag?
 		$url = preg_replace('/#.*/', '', $url);
 		
@@ -137,10 +140,16 @@ class Request {
 			$result = self::parseQuery($query);
 			$this->get->replace($result);
 		}
-		
+
 		// url without query params - those will be appended later
 		$this->url = $url;
-		$this->headers->set('host', parse_url($url, PHP_URL_HOST));
+		$url = parse_url($url);
+		if (isset($url['port'])) {
+			$url = $url['host'].":".$url['port'];
+		} else {
+			$url = $url['host'];
+		}
+		$this->headers->set('host', $url);
 	}
 	
 	public function getRawHeaders(){
