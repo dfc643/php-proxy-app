@@ -27,7 +27,7 @@ which homepage style?
 0 - show the normal home page, include url input box
 1 - always show 404 page (Chinese)
 */
-$config['home_mode'] = 0;
+$config['home_mode'] = 1;
 
 // Disabling PHP session for
 // - performance reasons

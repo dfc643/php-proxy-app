@@ -205,6 +205,21 @@ class ProxifyPlugin extends AbstractPlugin {
 				$str = Html::remove_scripts($str);
 			}
 		}
+
+
+		// TICK: window.location.href follow the redirection
+		$wlh_current_path = parse_url($this->base_url)['path'];
+		if (!isset($wlh_current_path) || $wlh_current_path === "/")
+		{
+			if (preg_match('/(\"|\')\/[^+ \"\'\.]*(\.(htm|html|asp|jsp|aspx|php))?[^+ \"\'\.]*(\"|\')/', $str, $wlh_next_links))
+			{
+				$wlh_next_link = preg_replace("/(\"|\')/", "", $wlh_next_links[0]);
+				$wlh_next_link = proxify_url($wlh_next_link, $this->base_url);
+				$response->setStatusCode(302);
+				$response->setContent("");
+				return header("Location: $wlh_next_link");
+			}
+		}
 		
 		// add html.no-js
 		
