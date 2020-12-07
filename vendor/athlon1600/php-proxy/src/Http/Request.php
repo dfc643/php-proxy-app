@@ -144,7 +144,9 @@ class Request {
 		// url without query params - those will be appended later
 		$this->url = $url;
 		$url = parse_url($url);
-		if (isset($url['port'])) {
+		if (isset($url['port'])
+			&& $url['port'] != "443"
+			&& $url['port'] != "80") {
 			$url = $url['host'].":".$url['port'];
 		} else {
 			$url = $url['host'];

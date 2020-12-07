@@ -211,26 +211,43 @@ class ProxifyPlugin extends AbstractPlugin {
 		$wlh_current_path = parse_url($this->base_url)['path'];
 		if (!isset($wlh_current_path) || $wlh_current_path === "/")
 		{
-			if (preg_match('/(\"|\')\/[^+ \"\'\.]*(\.(htm|html|asp|jsp|aspx|php))?[^+ \"\'\.]*(\"|\')/', $str, $wlh_next_links))
+			if (preg_match('/.{0,10}((\"|\')\/[^+ \"\'\.]*(\.(htm|html|asp|jsp|aspx|php))?[^+ \"\'\.]*(\"|\'))/', $str, $wlh_next_links))
 			{
-				$wlh_next_link = preg_replace("/(\"|\')/", "", $wlh_next_links[0]);
-				$wlh_next_link = proxify_url($wlh_next_link, $this->base_url);
-				$response->setStatusCode(302);
-				$response->setContent("");
-				return header("Location: $wlh_next_link");
+				//echo '<pre>'; var_dump($wlh_next_links); die();
+				//__skip_something_noneed__
+				$wlh_check_string = preg_replace('/\s+/', '', $wlh_next_links[0]);
+				if (stripos($wlh_check_string, "src=")
+				|| stripos($wlh_check_string, "href=")
+				|| stripos($wlh_check_string, "action=")
+				|| stripos($wlh_check_string, "browser") 	//__browser_check__
+				|| stripos($wlh_check_string, "validate") 	//__user_validate__
+				) {
+					$nothong = 1;
+				}
+				else
+				{
+					$wlh_next_link = preg_replace("/(\"|\')/", "", $wlh_next_links[1]);
+					if ($wlh_next_link != "/") { //__anti_loop__
+						$wlh_next_link = proxify_url($wlh_next_link, $this->base_url);
+						$response->setStatusCode(302);
+						$response->setContent("");
+						return header("Location: $wlh_next_link");
+					}
+				}
 			}
 		}
 		
 		// add html.no-js
 		
 		// let's remove all frames?? does not protect against the frames created dynamically via javascript
-		$str = preg_replace('@<iframe[^>]*>[^<]*<\\/iframe>@is', '', $str);
+		//$str = preg_replace('@<iframe[^>]*>[^<]*<\\/iframe>@is', '', $str);
 		
 		$str = $this->proxify_head($str);
 		$str = $this->proxify_css($str);
 
 		// src= and href=
 		$str = preg_replace_callback('@(?:src|href|action)\s*=\s*(["|\'])(.*?)\1@is', array($this, 'html_attr'), $str);
+		$str = preg_replace_callback('@(?:src)\s*=\s*(\\\"|\\\')(images\/.*?)\1@is', array($this, 'html_attr'), $str);
 		
 		// img srcset
 		$str = preg_replace_callback('/srcset=\"(.*?)\"/i', function($matches){
