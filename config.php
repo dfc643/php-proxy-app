@@ -47,6 +47,7 @@ $config['plugins'] = array(
     'Proxify',
     // 'UrlForm',
     // site specific plugins below
+    'ZjeEduVideo',
     // 'Youtube',
     // 'DailyMotion',
     // 'RedTube',
