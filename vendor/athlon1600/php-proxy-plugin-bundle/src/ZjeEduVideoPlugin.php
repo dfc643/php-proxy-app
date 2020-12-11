@@ -35,7 +35,7 @@ class ZjeEduVideoPlugin extends AbstractPlugin {
 		if(preg_match('@rtmp://[^"]*\.(mp4|f4v|flv|hls|m3u8|mpeg|mp3|m4v|m4a)@', $html, $matches)){
 			
 			$video_url = parse_url(rawurldecode($matches[0]));
-			$video_url['host'] = str_replace(":8443", "", $_SERVER['HTTP_HOST']);
+			$video_url['host'] = str_replace(":10061", "", $_SERVER['HTTP_HOST']);
 			$video_url = $this->http_build_url($video_url);
 			
 			$response->setStatusCode(302);
